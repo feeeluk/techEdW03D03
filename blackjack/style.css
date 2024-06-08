@@ -1,0 +1,28 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+p{
+    display: inline-block;
+}
+
+#dealerSection{
+    margin: 5px;
+    padding: 5px;
+}
+
+#playerSection{
+    margin: 5px;
+    padding: 5px;
+}
+
+.table{
+    background-color: green;
+}
+
+img{
+    height: 250px;
+    width: auto;
+    margin-right: 5px;
+}
