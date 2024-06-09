@@ -2,38 +2,96 @@
 // ******************************************************************
 // ******************************************************************
 let deckId = ""
+let htmlDeal = document.getElementById("dealButtonId");
+
+let dealerArray = []
+let dealerTotalScore = 0 
+let dealerNumberOfCards = 0
+let htmlDealerSection = document.getElementById("dealerSection");
+let htmlDealerScore = document.getElementById("dealerScore");
+let htmlDealerNumberOfCards = document.getElementById("dealerNumberOfCards");
+let htmlDealerCards = document.getElementById("dealerCards");
 
 let playerArray = []
-let dealerArray = []
+let playerTotalScore = 0
+let playerNumberOfCards = 0
+let htmlPlayerSection = document.getElementById("playerSection");
+let htmlPlayerScore = document.getElementById("playerScore");
+let htmlPlayerNumberOfCards = document.getElementById("playerNumberOfCards");
+let htmlPlayerActions = document.getElementById("playerActions");
+let htmlPlayerCards = document.getElementById("playerCards");
 
-let dealerTotal = 0 
-let playerTotal = 0
-
-let button = document.getElementById("buttonId");
-let dealerScore = document.getElementById("dealerScore");
-let playerScore = document.getElementById("playerScore")
 
 
 // global event listeners
 // ******************************************************************
 // ******************************************************************
-button.addEventListener("click", function(){
+htmlDeal.addEventListener("click", function(){
 
-    let howManyCards = 2;
-    let player = "playerSection";
-    let dealer = "dealerSection";
+    // the game uses a specific deck of cards, so all game action must use the same deck
+    storeDeck().then(function(){
 
-    populateArray(howManyCards, playerArray, player);
-    populateArray(howManyCards, dealerArray, dealer);
+        // initial deal (dealer)
+
+            // get cards from API and push into array
+            storeCardsInArray(deckId, 2, dealerArray).then( function(){
+
+                // display cards
+                displayCards(dealerArray, htmlDealerCards, "dealer");
+        
+                // calculate totalScore
+                let totalScore = calculateTotalScore(dealerArray, dealerTotalScore);
+
+                // calculate totalNumberOfCards
+                let totalNumberOfCards = calculateTotalNumberOfCards(dealerArray, dealerNumberOfCards);
+
+                // display details
+                displayDetails(htmlDealerScore, totalScore, htmlDealerNumberOfCards, totalNumberOfCards);
+
+            })
+            
+        // initial deal (player)
+
+            // get cards from API and push into array
+            storeCardsInArray(deckId, 2, playerArray).then( function(){
+
+                // display cards
+                displayCards(playerArray, htmlPlayerCards, "player");
+        
+                // calculate totalScore
+                let totalScore = calculateTotalScore(playerArray, playerTotalScore);
+
+                // calculate totalNumberOfCards
+                let totalNumberOfCards = calculateTotalNumberOfCards(playerArray, playerNumberOfCards);
+
+                // display details
+                displayDetails(htmlPlayerScore, totalScore, htmlPlayerNumberOfCards, totalNumberOfCards);
+
+            })
+    })
 })
 
 
 // functions
 // ******************************************************************
-// ******************************************************************
-async function populateArray(numberOfCards, nameOfArray, elementId){
+// ******************************************************************    
+async function storeDeck(){
+    const deck  = await fetchDeckFromAPI();
+    deckId = deck;
+}
 
-    let array = await GetPokerCards(numberOfCards);
+    async function fetchDeckFromAPI(){
+        let response = await fetch("https://www.deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1");
+        let json = await response.json();
+        let returnedArray = Object.entries(json);
+
+        return returnedArray[1][1];
+    }
+
+
+async function storeCardsInArray(deck, numberOfCardsToDeal, nameOfArray){
+
+    let array = await fetchCardsFromAPI(deck, numberOfCardsToDeal);
 
     for(let i = 0; i < array[2][1].length; i++)
         {            
@@ -46,49 +104,68 @@ async function populateArray(numberOfCards, nameOfArray, elementId){
             nameOfArray.push(item)
         }
 
-    initialDisplay(nameOfArray, elementId);
+    return nameOfArray;
     console.log(nameOfArray);
 }
 
+    async function fetchCardsFromAPI(deck, numberOfCards){
 
-async function GetPokerCards(count){
+        let response = await fetch(`https://www.deckofcardsapi.com/api/deck/${deck}/draw/?count=${numberOfCards}`);
+        let json = await response.json();
+        let array = Object.entries(json);
 
-    let response = await fetch("https://www.deckofcardsapi.com/api/deck/new/draw/?count="+count);
-    let json = await response.json();
-    let myArray = Object.entries(json);
-
-    console.log(myArray)
-    return myArray;
-}
+        console.log(array)
+        return array;
+    }
 
 
-function initialDisplay(array, elementId){
+function displayCards(nameOfArray, element, string){
+    element.innerText = '';
 
-    for(let i = 0 ; i < array.length; i++) {
-
-        let id = elementId.toString();
+    for(let i = 0; i < nameOfArray.length; i++) {
+        
+        id = string.toString();
         
         let newImg = document.createElement("img");
         newImg.setAttribute("id", `${id}img${i}`)
-        newImg.src = array[i].imageFront;
+        newImg.src = nameOfArray[i].imageFront;
         
         let newP = document.createElement("p");
         newP.setAttribute("id", `${id}p${i}`)
 
-        document.getElementById(id).appendChild(newP);
-        document.getElementById(id).appendChild(newImg);  
-        
-        if(id === "dealerSection"){
-            dealerTotal += parseInt(array[i].value, 10)
-        } else if(id === "playerSection"){
-            playerTotal += parseInt(array[i].value, 10)
-        }       
+        element.appendChild(newP);
+        element.appendChild(newImg);     
+    }
+}
+
+
+function calculateTotalScore(nameOfArray, totalScore){
+    
+    for(let i = 0; i < nameOfArray.length; i++) {
+
+        totalScore += parseInt(nameOfArray[i].value, 10);
+
     }
 
-    console.log(dealerTotal)
-    console.log(playerTotal)
-    dealerScore.innerText = dealerTotal;
-    playerScore.innerText = playerTotal;
+    return totalScore;
+}
+
+
+function calculateTotalNumberOfCards(nameOfArray, totalNumberOfCards){
+
+    for(let i = 0; i < nameOfArray.length; i++) {
+
+        totalNumberOfCards++;
+    }
+
+    return totalNumberOfCards;
+}
+    
+    
+function displayDetails(score, totalScore, numberOfCards, totalNumberOfCards){
+
+    score.innerText = totalScore;
+    numberOfCards.innerText = totalNumberOfCards
 }
 
 
