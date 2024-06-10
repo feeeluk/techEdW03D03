@@ -32,63 +32,42 @@ htmlDeal.addEventListener("click", function(){
     storeDeck().then(function(){
 
         // initial deal (dealer)
-        // get cards from API and push into array
-        storeCardsInArray(deckId, 2, dealerArray).then( function(){
 
-            // display cards
-            displayCards(dealerArray, htmlDealerCards, "dealer");
-    
-            // calculate totalScore
-            let totalScore = calculateTotalScore(dealerArray, dealerTotalScore);
+            // get cards from API and push into array
+            storeCardsInArray(deckId, 2, dealerArray).then( function(){
 
-            // calculate totalNumberOfCards
-            let totalNumberOfCards = calculateTotalNumberOfCards(dealerArray, dealerNumberOfCards);
+                // display cards
+                displayCards(dealerArray, htmlDealerCards, "dealer");
+        
+                // calculate totalScore
+                let totalScore = calculateTotalScore(dealerArray, dealerTotalScore);
 
-            // display details
-            displayDetails(htmlDealerScore, totalScore, htmlDealerNumberOfCards, totalNumberOfCards);
+                // calculate totalNumberOfCards
+                let totalNumberOfCards = calculateTotalNumberOfCards(dealerArray, dealerNumberOfCards);
 
-        })
+                // display details
+                displayDetails(htmlDealerScore, totalScore, htmlDealerNumberOfCards, totalNumberOfCards);
+
+            })
             
         // initial deal (player)
-        // get cards from API and push into array
-        storeCardsInArray(deckId, 2, playerArray).then( function(){
 
-            // display cards
-            displayCards(playerArray, htmlPlayerCards, "player");
-    
-            // calculate totalScore
-            let totalScore = calculateTotalScore(playerArray, playerTotalScore);
+            // get cards from API and push into array
+            storeCardsInArray(deckId, 2, playerArray).then( function(){
 
-            // calculate totalNumberOfCards
-            let totalNumberOfCards = calculateTotalNumberOfCards(playerArray, playerNumberOfCards);
+                // display cards
+                displayCards(playerArray, htmlPlayerCards, "player");
+        
+                // calculate totalScore
+                let totalScore = calculateTotalScore(playerArray, playerTotalScore);
 
-            // display details
-            displayDetails(htmlPlayerScore, totalScore, htmlPlayerNumberOfCards, totalNumberOfCards);
+                // calculate totalNumberOfCards
+                let totalNumberOfCards = calculateTotalNumberOfCards(playerArray, playerNumberOfCards);
 
-            action(htmlPlayerActions, totalScore, totalNumberOfCards)
+                // display details
+                displayDetails(htmlPlayerScore, totalScore, htmlPlayerNumberOfCards, totalNumberOfCards);
 
-            document.getElementById("hit").addEventListener("click", function(){
-                
-                    // get cards from API and push into array
-                    storeCardsInArray(deckId, 1, playerArray).then( function(){
-
-                    // display cards
-                    displayCards(playerArray, htmlPlayerCards, "player");
-            
-                    // calculate totalScore
-                    let totalScore = calculateTotalScore(playerArray, playerTotalScore);
-
-                    // calculate totalNumberOfCards
-                    let totalNumberOfCards = calculateTotalNumberOfCards(playerArray, playerNumberOfCards);
-
-                    // display details
-                    displayDetails(htmlPlayerScore, totalScore, htmlPlayerNumberOfCards, totalNumberOfCards);
-
-                    action(htmlPlayerActions, totalScore, totalNumberOfCards)
-                })
             })
-
-        })
     })
 })
 
@@ -96,7 +75,7 @@ htmlDeal.addEventListener("click", function(){
 // functions
 // ******************************************************************
 // ******************************************************************    
-const storeDeck = async () => {
+async function storeDeck(){
     const deck  = await fetchDeckFromAPI();
     deckId = deck;
 }
@@ -124,6 +103,9 @@ async function storeCardsInArray(deck, numberOfCardsToDeal, nameOfArray){
 
             nameOfArray.push(item)
         }
+
+    return nameOfArray;
+    console.log(nameOfArray);
 }
 
     async function fetchCardsFromAPI(deck, numberOfCards){
@@ -184,30 +166,6 @@ function displayDetails(score, totalScore, numberOfCards, totalNumberOfCards){
 
     score.innerText = totalScore;
     numberOfCards.innerText = totalNumberOfCards
-}
-
-
-let action = (id, totalScore, totalNumberOfCards) =>{
-    
-    id.innerText = ''
-
-    if(totalScore < 21 && totalNumberOfCards < 5){
-        let button = document.createElement("button")
-        button.setAttribute("id", "hit")
-        button.innerText = "HIT"
-        id.appendChild(button)
-    } else if (totalScore < 21 && totalNumberOfCards === 5){
-        let button = document.createElement("button")
-        button.innerText = "5 carder"
-        button.setAttribute("id", "5Card")
-        id.appendChild(button)
-    } else {
-        let button = document.createElement("button")
-        button.innerText = "bust"
-        button.setAttribute("id", "bust")
-        id.appendChild(button)
-    }
-
 }
 
 
